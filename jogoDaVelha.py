@@ -1,57 +1,66 @@
-def print_board(board):
-    for row in board:
-        print(" | ".join(row))
-        print("---------")
+import tkinter as tk
+from tkinter import messagebox
 
 
-def check_winner(board):
-    # Verifica as linhas
-    for row in board:
-        if row[0] == row[1] == row[2] != " ":
-            return True
+class TicTacToe:
+    def __init__(self):
+        self.current_player = "X"
+        self.board = [[" " for _ in range(3)] for _ in range(3)]
+        self.window = tk.Tk()
+        self.window.title("Jogo da Velha")
+        self.buttons = []
 
-    # Verifica as colunas
-    for col in range(3):
-        if board[0][col] == board[1][col] == board[2][col] != " ":
-            return True
+        for i in range(3):
+            row = []
+            for j in range(3):
+                button = tk.Button(
+                    self.window,
+                    text=" ",
+                    font=("Arial", 30),
+                    width=4,
+                    height=2,
+                    command=lambda row=i, col=j: self.make_move(row, col)
+                )
+                button.grid(row=i, column=j)
+                row.append(button)
+            self.buttons.append(row)
 
-    # Verifica as diagonais
-    if board[0][0] == board[1][1] == board[2][2] != " ":
-        return True
+    def make_move(self, row, col):
+        if self.board[row][col] == " ":
+            self.board[row][col] = self.current_player
+            self.buttons[row][col].config(text=self.current_player)
 
-    if board[0][2] == board[1][1] == board[2][0] != " ":
-        return True
-
-    return False
-
-
-def play_game():
-    board = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
-    current_player = "X"
-    game_over = False
-
-    print("Bem-vindo ao Jogo da Velha!")
-    print_board(board)
-
-    while not game_over:
-        print(f"É a vez do jogador {current_player}")
-        row = int(input("Informe o número da linha (0-2): "))
-        col = int(input("Informe o número da coluna (0-2): "))
-
-        if board[row][col] == " ":
-            board[row][col] = current_player
-            print_board(board)
-
-            if check_winner(board):
-                print(f"O jogador {current_player} venceu!")
-                game_over = True
-            elif " " not in board[0] and " " not in board[1] and " " not in board[2]:
-                print("Empate!")
-                game_over = True
+            if self.check_winner():
+                messagebox.showinfo(
+                    "Fim de jogo", f"O jogador {self.current_player} venceu!")
+                self.window.quit()
+            elif self.is_board_full():
+                messagebox.showinfo("Fim de jogo", "Empate!")
+                self.window.quit()
             else:
-                current_player = "O" if current_player == "X" else "X"
-        else:
-            print("Essa posição já está ocupada. Tente novamente.")
+                self.current_player = "O" if self.current_player == "X" else "X"
+
+    def check_winner(self):
+        for i in range(3):
+            if self.board[i][0] == self.board[i][1] == self.board[i][2] != " ":
+                return True
+            if self.board[0][i] == self.board[1][i] == self.board[2][i] != " ":
+                return True
+        if self.board[0][0] == self.board[1][1] == self.board[2][2] != " ":
+            return True
+        if self.board[0][2] == self.board[1][1] == self.board[2][0] != " ":
+            return True
+        return False
+
+    def is_board_full(self):
+        for row in self.board:
+            if " " in row:
+                return False
+        return True
+
+    def run(self):
+        self.window.mainloop()
 
 
-play_game()
+game = TicTacToe()
+game.run()
